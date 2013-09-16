@@ -1,0 +1,373 @@
+<html>
+<head>
+<style type="text/css">
+pre.code { background: #f8f8f8; color: green; margin-left: 30px; padding: 10px;
+        border-top: 1px solid black; border-bottom: 1px solid black;
+	border-left: 1px solid black }
+img { border: none }
+.heading { font-family: verdana, arial, helvetica, sans-serif;
+           font-weight: normal; font-style: italic; background: #6699ff;
+           margin: 0px; text-align: center; font-size: larger;
+	   color: white }
+td { padding: 2px 15px }
+.hilight { color: #0099cc; font-weight: normal }
+.type { color: black; font-weight: bold }
+.item { font-weight: bold; font-style: italic }
+.opt { background: #ccddff }
+.mono { font-family: monospace; font-size: smaller }
+blockquote.code { font-family: monospace; font-size: smaller }
+</style>
+</head>
+
+<body>
+<center><h1>pyid3lib 0.5</h1>
+
+<a href="http://pyid3lib.sourceforge.net/">project home page</a>
+</center><p>
+
+This is a short tutorial on using the pyid3lib module.  For
+instructions on installing it, see the README file included in the
+distribution.<p>
+
+<h1>Getting started</h1>
+You start by using the <code>tag</code> function to create a tag
+object for a given MP3 file.
+
+<pre class="code">
+>>> <span class="type">import pyid3lib</span>
+>>> <span class="type">x = pyid3lib.tag( 'track01.mp3' )</span>
+>>> <span class="type">x</span>
+&lt;pyid3lib.tag object at 0x8155b70&gt;
+>>> 
+</pre>
+
+You can read and change the data contained in this object.  To write
+any changes back into the original MP3 file, use the
+<code>update()</code> method.
+
+<pre class="code">
+>>> <span class="type">x.update()</span>
+>>>
+</pre>
+
+There are two ways to access the data: the <b>basic</b> way, and the
+<b>advanced</b> way.
+
+
+<h1>The basic way</h1>
+
+The most common pieces of tag data can be accessed via attributes on
+the tag object.  For example:
+
+<pre class="code">
+>>> <span class="type">x = pyid3lib.tag( 'track01.mp3' )</span>
+>>> <span class="type">x.artist</span>
+'Aphex Twin'
+>>> <span class="type">x.title</span>
+'Jynweythek'
+>>> <span class="type">x.year</span>
+2001
+>>> <span class="type">x.track</span>
+(1, 15)
+>>> 
+</pre>
+
+You can also assign new values to them:
+
+<pre class="code">
+>>> <span class="type">x.artist = 'Meat Beat Manifesto'</span>
+>>>
+</pre>
+
+<b><i>Don't forget that you have to call <code>update()</code> to actually
+write changes out to the file!</i></b><p>
+
+Most attributes require a string value, or <code>ID3Error</code> is raised:
+
+<pre class="code">
+>>> <span class="type">x.artist = 12</span>
+Traceback (most recent call last):
+  File "<stdin>", line 1, in ?
+pyid3lib.ID3Error: 'artist' attribute must be string
+>>>
+</pre>
+
+Deleting an attribute (with "<code>del x.attr</code>") or assigning
+<code>None</code> to it deletes the corresponding piece of tag
+data.<p>
+
+Here are all the attributes that take strings:<p>
+
+<center>
+<table class="mono">
+<tr><td>album</td> <td>artist</td> <td>band</td></tr>
+<tr><td>bpm</td> <td>composer</td> <td>conductor</td></tr>
+<tr><td>contentgroup</td> <td>contenttype</td> <td>copyright</td></tr>
+<tr><td>date</td> <td>encodedby</td> <td>encodersettings</td></tr>
+<tr><td>fileowner</td> <td>filetype</td> <td>initialkey</td></tr>
+<tr><td>involvedpeople</td> <td>isrc</td> <td>language</td></tr>
+<tr><td>leadartist</td> <td>lyricist</td> <td>mediatype</td></tr>
+<tr><td>mixartist</td> <td>netradioowner</td> <td>netradiostation</td></tr>
+<tr><td>origalbum</td> <td>origartist</td> <td>origfilename</td></tr>
+<tr><td>origlyricist</td> <td>origyear</td> <td>playlistdelay</td></tr>
+<tr><td>publisher</td> <td>recordingdates</td> <td>size</td></tr>
+<tr><td>songlen</td> <td>subtitle</td> <td>time</td></tr>
+<tr><td>title</td> <td>wwwartist</td> <td>wwwaudiofile</td></tr>
+<tr><td>wwwaudiosource</td> <td>wwwcommercialinfo</td> <td>wwwcopyright</td></tr>
+<tr><td>wwwpayment</td> <td>wwwpublisher</td> <td>wwwradiopage</td></tr>
+</table>
+</center><p>
+
+Note that <code>artist</code> is a synonym for <code>leadartist</code>
+&#151; the two attributes modify the same underlying piece of data.<p>
+
+There are a few other attributes that get special processing.
+"<code>year</code>" is treated as an int, even though it is stored in
+the tag as a string.  You can assign either a string or an int to it,
+but its value will always be returned as an int.<p>
+
+"<code>tracknum</code>" and "<code>partinset</code>" can be either a
+1- or 2-tuple of ints.  Setting <code>tracknum</code> to
+<code>(4,17)</code> indicates that this is track 4 of 17 on the
+original album.  <code>partinset</code> functions similarly, when
+album is divided into several chunks of media (e.g., a double-CD
+album).  "<code>track</code>" is a synonym for
+"<code>tracknum</code>".<p>
+
+Here are some examples of using the <code>track</code> attribute:<p>
+
+<pre class="code">
+>>> <span class="type">x.track = '4'</span>          <span class="hilight"># all these are equivalent ways </span>
+>>> <span class="type">x.track = 4</span>            <span class="hilight"># of saying "track 4"</span>
+>>> <span class="type">x.track = (4,)</span>
+>>>
+
+>>> <span class="type">x.track = (4,17)</span>       <span class="hilight"># these two are equivalent ways</span>
+>>> <span class="type">x.track = '4/17'</span>       <span class="hilight"># of saying "track 4 of 17"</span>
+>>>
+
+>>> <span class="type">x.track = 9</span>            <span class="hilight"># no matter how it is set, the value</span>
+>>> <span class="type">x.track</span>                <span class="hilight"># is returned as a 1- or 2-tuple of ints.</span>
+(9,)
+>>> <span class="type">x.track = '10/12'</span>
+>>> <span class="type">x.track</span>
+(10, 12)
+>>>
+</pre>
+
+<h1>The advanced way</h1>
+
+There are some kinds of tag data you can't access via the basic
+method.  Most of them are pretty obscure tags that don't seem to be
+used much, but two important ones are the "Comments" frame and the
+"Attached picture" frame.  (FYI, "Attached picture" is what is shown
+by Windows Media Player if you select the "Album art"
+visualization.)<p>
+
+To get at all the data, you have to use a different access method.
+First, I'll give a very brief introduction to how ID3v2 tags are
+structured (version 2.3 and higher, at least).<p>
+
+An ID3 <i>tag</i> consists of a header, plus one or more
+<i>frames</i>.  Each frame has a four-character <i>frame ID</i>
+identifying what's stored in that frame, plus some data.  There are a
+bunch of standardized frame IDs defined in the <a
+href="http://id3.org/id3v2.4.0-frames.txt">standard</a> at <a
+href="http://id3.org/">id3.org</a>.  For instance, the "TALB" frame is
+used to store the name of the album that the track came from.  The
+"TPE1" frame stores the name of the artist, and so on.<p>
+
+pyid3lib "tag" objects support Python's sequencing and iteration
+protocols.  Accessing an item of this sequence gives you a dictionary
+with the contents of the corresponding frame.  For instance:
+
+<pre class="code">
+>>> <span class="type">x = pyid3lib.tag( 'track01.mp3' )</span>
+>>> <span class="type">for i in x: print i</span>     <span class="hilight"># iterate over all frames, printing them out</span>
+... 
+{'text': 'Aphex Twin', 'textenc': 0, 'frameid': 'TPE1'}
+{'text': 'Drukqs [1/2]', 'textenc': 0, 'frameid': 'TALB'}
+{'text': '1/2', 'textenc': 0, 'frameid': 'TPOS'}
+{'text': '2001', 'textenc': 0, 'frameid': 'TYER'}
+{'text': 'Jynweythek', 'textenc': 0, 'frameid': 'TIT2'}
+{'text': '1/15', 'textenc': 0, 'frameid': 'TRCK'}
+{'text': '(26)', 'textenc': 0, 'frameid': 'TCON'}
+{'text': '143386', 'textenc': 0, 'frameid': 'TLEN'}
+>>> <span class="type">x[4]</span>                    <span class="hilight"># access a single frame</span> 
+{'text': 'Jynweythek', 'textenc': 0, 'frameid': 'TIT2'}
+>>> <span class="type">x[:2]</span>                   <span class="hilight"># access a slice of frames</span> 
+[{'text': 'Aphex Twin', 'textenc': 0, 'frameid': 'TPE1'},
+ {'text': 'Drukqs [1/2]', 'textenc': 0, 'frameid': 'TALB'}]
+>>> 
+</pre><p>
+
+You can modify the tag in all the usual ways you can manipulate a
+list:  assign to an element or slice, or via the <code>append</code>,
+<code>extend</code>, <code>insert</code>, <code>pop</code>, and
+<code>remove</code> methods.  In each case the thing you put into the
+tag must be a dictionary, and the dictionary must contain a
+'<code>frameid</code>' key whose value is a legal frame ID.  (Of
+course, <code>extend</code> and slice assignment both require a
+<i>sequence</i> of legal dictionaries.)<p>
+
+<pre class="code">
+>>> <span class="type">d = { 'frameid' : 'TPE1', 'text' : 'New Artist Name' }</span>
+>>> <span class="type">x[0] = d</span>
+>>> <span class="type">x.pop()</span>
+{'text': '143386', 'textenc': 0, 'frameid': 'TLEN'}
+>>> <span class="type">[i['frameid'] for i in x]</span>
+['TPE1', 'TALB', 'TPOS', 'TYER', 'TIT2', 'TRCK', 'TCON']
+>>>
+</pre>
+
+
+The methods <code>index</code> and <code>remove</code>, which search
+the sequence for a value, take a frame id string as argument.
+
+<pre class="code">
+>>> <span class="type">i = x.index( 'TIT2' )</span>
+>>> <span class="type">print i</span>
+4
+>>> <span class="type">x[i]</span>
+{'text': 'Jynweythek', 'textenc': 0, 'frameid': 'TIT2'}
+>>> 
+</pre>
+
+It's important to remember that the dictionaries you get out of a tag
+object are merely <i>copies</i> of the frame data &#151; modifying the
+dictionary does not modify the tag!  To change the tag, you have to
+explicitly assign back into it.  For instance:
+
+<pre class="code">
+>>> <span class="type">x.title</span>                       <span class="hilight"># here is the track's title</span>
+'Jynweythek'
+>>> <span class="type">d = x[x.index('TIT2')]</span>        <span class="hilight"># access the corresponding frame</span>
+>>> <span class="type">d</span>
+{'text': 'Jynweythek', 'textenc': 0, 'frameid': 'TIT2'}
+>>> <span class="type">d['text'] = 'New Title'</span>       <span class="hilight"># modify the returned dictionary</span>
+>>> <span class="type">x.title</span>                       <span class="hilight"># see? the tag data hasn't changed.</span>
+'Jynweythek'
+>>> <span class="type">x[x.index('TIT2')] = d</span>        <span class="hilight"># set the frame based on the modified dictionary</span>
+>>> <span class="type">x.title</span>                       <span class="hilight"># now the tag data reflects the change.</span>
+'New Title'
+>>> 
+</pre>
+
+Modifying the tag through attributes works on exactly the same data as
+modifying it through the sequence operations.  The attributes are
+provided simply for convenience; it's easier to remember names like
+"artist" than sometimes-cryptic frame IDs like "TPE1".<p>
+
+Setting the value of an attribute will first go through and delete all
+frames of the corresponding frame ID, then append a new frame with the
+new value.  So saying:<p>
+
+<pre class="code">
+x.artist = 'Aphex Twin'
+</pre>
+
+is roughly equivalent to:
+
+<pre class="code">
+try:
+    while 1: x.remove( 'TPE1' )
+except ValueError:
+    pass
+x.append( { 'frameid' : 'TPE1', 'text' : 'Aphex Twin' } )
+</pre>
+
+<h2>What goes in the dictionary?</h2>
+
+pyid3lib has a query function which will look up a frame ID and give
+you a short description, and a tuple of the keys it looks for in a
+dictionary (in addition to the required 'frameid') key:
+
+<pre class="code">
+>>> <span class="type">pyid3lib.query( 'TALB' )</span>
+(24, 'Album/Movie/Show title', ('textenc', 'text'))
+>>> <span class="type">pyid3lib.query( 'WOAR' )</span>
+(69, 'Official artist/performer webpage', ('url',))
+>>> <span class="type">pyid3lib.query( 'APIC' )</span>
+(2, 'Attached picture', ('textenc', 'imageformat', 'mimetype', 'picturetype', 'description', 'data'))
+>>> <span class="type">pyid3lib.query( 'QQQQ' )</span>
+Traceback (most recent call last):
+  File "<stdin>", line 1, in ?
+pyid3lib.ID3Error: frame ID 'QQQQ' is not supported by id3lib
+>>> 
+</pre>
+
+The return value from <code>query</code> has three values.  The first
+can be ignored; it's used internally.  The second is a string with a
+brief description of that frame's purpose.  The third is a tuple of
+strings with the names of individual fields of that frame.  Hopefully
+many of these will be self-explanatory, for more information you could
+look at the <a
+href="http://id3.org/id3v2.4.0-frames.txt">standard</a>.<p>
+
+<h2>Attached pictures</h2>
+
+Here's how to embed a JPEG image in the tag.  Assume you have the
+image in a file "pic.jpg":<p>
+
+<pre class="code">
+>>> <span class="type">f = open( 'pic.jpg', 'rb' )</span>
+>>> <span class="type">d = { 'frameid' : 'APIC', 'mimetype' : 'image/jpeg',</span>
+...       <span class="type">'description' : 'A pretty picture.',</span>
+...       <span class="type">'picturetype' : 3,</span>
+...       <span class="type">'data' : f.read() }</span>
+>>> <span class="type">f.close()</span>
+>>> <span class="type">x.append( d )</span>
+>>>
+</pre>
+
+See?  Nothing to it.  The value 3 that was assigned to 'picturetype'
+identifies the picture as the front of the album cover.  For a list of
+all the picturetypes, see section 4.14 of the <a
+href="http://id3.org/id3v2.4.0-frames.txt">standard</a>.<p>
+
+To extract an embedded picture, you do pretty much the opposite
+thing:<p>
+
+<pre class="code">
+>>> <span class="type">d = x[x.index('APIC')]</span>          <span class="hilight"># this finds the first embedded picture in the tag</span>
+>>> <span class="type">d['mimetype']</span>
+'image/jpeg'
+>>> <span class="type">f = open( 'output.jpg', 'wb' )</span>
+>>> <span class="type">f.write( d['data'] )</span>
+>>> <span class="type">f.close()</span>
+>>> 
+</pre><p>
+
+For maximum compatibility, you should limit your pictures to JPEGs and
+PNGs (mimetypes "image/jpeg" and "image/png", respectively).  Most
+software that reads picture tags will be able to support at least
+these two image formats (and your software should, too!)<p>
+
+
+<h1>Known issues</h1>
+
+To be fixed before I can call it version 1.0:<p>
+
+<ul>
+
+<li><span class="item">Unknown frames.</span> If you read in a tag
+with frames that id3lib doesn't parse, and then write it back out
+again, the unknown frames are dropped &#151; even if you make no other
+changes to the tag data.  Even this:<p>
+
+<pre class="code">
+>>> <span class="type">x = pyid3lib.tag( 'song.mp3' )</span>
+>>> <span class="type">x.update()</span>
+</pre><p>
+
+causes unknown frames to be stripped from the tag.  This is a
+limitation of the underlying id3lib library.<p>
+
+<li><span class="item">Unicode support.</span> There is none to speak
+of yet.  All string data is assumed to be ISO-8859-1 (i.e., extended
+ASCII).  Accordingly, the "textenc" field of all frames should be set
+to zero.<p>
+
+</ul>
+
+</body>

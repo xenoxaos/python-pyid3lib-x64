@@ -1,0 +1,61 @@
+This is pyid3lib, a Python extension module that uses the "id3lib"
+library to read and write the ID3v2 tag data in MP3 audio files.
+
+pyid3lib is free software.  Please see the file COPYING for details.
+
+
+INSTALLATION
+------------
+
+You will need to have id3lib and zlib installed somewhere in your
+standard search path.  If you're using some flavor of Unix such as
+Linux, you probably already have zlip.  id3lib is available from its
+project home page at:
+
+   http://id3lib.sourceforge.net/
+
+There are instructions there for building and installing id3lib.  I've
+been using version 3.8.0pre2.
+
+
+Once you've got id3lib installed, you can build and install this
+module, by typing:
+
+   python setup.py install
+
+(To just build the library without installing it, use "python setup.py
+build".)
+
+Once installed, you should be able to start python and successfully
+import "pyid3lib":
+
+   % python
+   Python 2.2 (#6, Jan 14 2002, 21:10:07) 
+   [GCC 2.96 20000731 (Red Hat Linux 7.1 2.96-98)] on linux2
+   Type "help", "copyright", "credits" or "license" for more information.
+   >>> import pyid3lib
+   >>> 
+
+
+USING
+-----
+
+See 'doc.html', in this distribtion.
+
+
+FEEDBACK
+--------
+
+I'm interested in all kinds of feedback, good and bad.  This is the
+first Python thing I have attempted to package up and release to the
+world, so it's not unimaginable that I've bungled it.  Comments,
+questions, bug reports, requests, etc., are all welcome.
+
+-- Doug Zongker
+dougz@cs.washington.edu
+27 March 2002
+
+
+
+
+   

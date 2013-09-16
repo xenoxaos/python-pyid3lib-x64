@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: pyid3lib
+Version: 0.5.1
+Summary: read and edit ID3 tags on MP3 files (using id3lib)
+Home-page: http://pyid3lib.sourceforge.net/
+Author: Doug Zongker
+Author-email: dzongker@sourceforge.net
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN
