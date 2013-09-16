@@ -10,19 +10,13 @@
 #include <id3/id3lib_frame.h>
 #include <id3/tag.h>
 
-#if PY_VERSION_HEX < 0x02050000 && !defined(PY_SSIZE_T_MIN)
-typedef int Py_ssize_t;
-#define PY_SSIZE_T_MAX INT_MAX
-#define PY_SSIZE_T_MIN INT_MIN
-#endif
-
 typedef struct
 {
     PyObject_HEAD
 
     ID3_Tag* tag;
     ID3_Frame** frames;
-    Py_ssize_t size, alloc;
+    int size, alloc;
 } ID3Object;
 
 typedef struct
@@ -86,24 +80,13 @@ static PyObject* frameid_lookup = NULL;
 
 
 static PySequenceMethods tag_as_sequence = {
-#if PY_VERSION_HEX >= 0x02050000
-    (lenfunc)id3_length,
-#else
     (inquiry)id3_length,
-#endif
     NULL,
     NULL,
-#if PY_VERSION_HEX >= 0x02050000
-    (ssizeargfunc)id3_item,
-    (ssizessizeargfunc)id3_slice,
-    (ssizeobjargproc)id3_ass_item,
-    (ssizessizeobjargproc)id3_ass_slice,
-#else
     (intargfunc)id3_item,
     (intintargfunc)id3_slice,
     (intobjargproc)id3_ass_item,
     (intintobjargproc)id3_ass_slice,
-#endif
     (objobjproc)id3_contains,
     NULL,
     NULL,
@@ -841,7 +824,7 @@ static ID3_Frame* frame_from_dict( PyObject* dict )
 static ID3_Frame* frame_from_dict( ID3_FrameID fid, PyObject* dict )
 {
     char* data;
-    Py_ssize_t size;
+    int size;
     
     ID3_Field* field;
     ID3_FieldID flid;
@@ -1071,7 +1054,7 @@ static PyObject* id3_getattr( ID3Object* self, char* attrname )
             fld = frame->GetField( ID3FN_TEXT );
             str = fld->GetRawText();
             
-            if ( (slash = strchr( (char*)str, '/' )) != NULL )
+            if ( (slash = strchr( str, '/' )) != NULL )
                 result = Py_BuildValue( "ii", atoi( str ), atoi( slash+1 ) );
             else
                 result = Py_BuildValue( "(i)", atoi( str ) );
